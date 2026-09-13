@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Room's Lounge — кальянный лаунж-бар</title>
+<meta name="description" content="Кальянный лаунж-бар: дымные кальяны, авторские чаи, бронирование стола.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:hsl(156 26% 4%);--fg:hsl(140 25% 95%);--card:hsl(157 20% 8%);--card2:hsl(156 22% 14%);--mutfg:hsl(145 8% 59%);--acc:hsl(42 41% 62%);--prim:hsl(147 27% 94%);--primfg:hsl(160 27% 6%);--border:hsl(156 14% 17%);--glow:hsl(159 38% 28%);--bar:hsl(163 21% 6%);--des:hsl(0 62% 45%);--ease:cubic-bezier(.22,1,.36,1);--fd:'Playfair Display',Georgia,serif;--fb:'Golos Text',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;scroll-padding-top:5rem;overflow-x:hidden}
+body{font-family:var(--fb);background:var(--bg);color:var(--fg);font-size:19px;line-height:1.6;overflow-x:hidden}
+img{display:block;max-width:100%}
+::selection{background:hsl(42 41% 62%/.35)}
+button{font-family:inherit}
+#pb{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--acc),hsl(42 60% 75%));z-index:200}
+#glow{position:fixed;left:0;top:0;width:340px;height:340px;border-radius:50%;pointer-events:none;z-index:60;mix-blend-mode:screen;background:radial-gradient(circle,rgba(45,212,191,.16),rgba(45,212,191,.06) 40%,transparent 70%);filter:blur(10px);transform:translate(-50%,-50%);will-change:transform;opacity:0;transition:opacity .3s}
+#kring{position:fixed;left:0;top:0;width:34px;height:34px;border:1px solid hsl(159 60% 60%/.8);border-radius:50%;pointer-events:none;z-index:61;box-shadow:0 0 14px hsl(159 60% 60%/.5),inset 0 0 8px hsl(159 60% 60%/.3);transform:translate(-50%,-50%);will-change:transform;opacity:0;transition:opacity .3s,width .3s,height .3s}
+#kring.hov{width:56px;height:56px}
+.trail{position:fixed;left:0;top:0;width:7px;height:7px;border-radius:50%;pointer-events:none;z-index:59;background:hsl(159 60% 60%);box-shadow:0 0 10px hsl(159 60% 60%);transform:translate(-50%,-50%);opacity:0}
+#smoke{position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:screen;filter:blur(6px) saturate(1.1)}
+.grain::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E")}
+header{position:fixed;inset:0 0 auto;z-index:100;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
+header.sc{background:hsl(163 21% 6%/.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom-color:hsl(140 25% 95%/.1)}
+.hbar{max-width:1500px;margin:0 auto;height:64px;display:flex;align-items:center;gap:28px;padding:0 24px}
+.brand{display:flex;align-items:center;gap:12px;background:none;border:none;cursor:pointer;color:var(--fg)}
+.brand svg{width:38px;height:38px}
+.brand b{font-family:var(--fd);font-weight:700;font-size:.9em;letter-spacing:.16em;text-transform:uppercase}
+nav.desk{display:flex;gap:24px}
+nav.desk button{background:none;border:none;cursor:pointer;color:var(--mutfg);font-size:.85em;font-weight:500;position:relative;transition:color .3s}
+nav.desk button::after{content:"";position:absolute;left:0;bottom:-3px;height:1px;width:100%;background:var(--acc);transform:scaleX(0);transform-origin:right;transition:transform .3s}
+nav.desk button:hover{color:var(--fg)}nav.desk button:hover::after{transform:scaleX(1);transform-origin:left}
+.hright{margin-left:auto;display:flex;align-items:center;gap:14px}
+.lang{display:flex;align-items:center;gap:1px;border:1px solid hsl(140 25% 95%/.13);border-radius:999px;padding:3px}
+.lang button{background:none;border:none;cursor:pointer;color:var(--mutfg);font-size:.78em;font-weight:600;text-transform:uppercase;padding:4px 10px;border-radius:999px;transition:.3s}
+.lang button.on{background:hsl(140 25% 95%/.1);color:var(--fg)}
+.hphone{color:var(--mutfg);text-decoration:none;font-size:.85em;transition:color .3s}.hphone:hover{color:var(--fg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;border-radius:999px;font-weight:600;transition:transform .45s var(--ease),box-shadow .45s var(--ease),filter .3s,background .3s,color .3s,border-color .3s;will-change:transform}
+.btn-p{background:var(--prim);color:var(--primfg);padding:12px 26px;font-size:.88em}.btn-p:hover{filter:brightness(.95)}
+.btn-g{background:hsl(140 25% 95%/.04);color:var(--fg);border:1px solid hsl(140 25% 95%/.13);padding:12px 24px;font-size:.86em;backdrop-filter:blur(8px)}.btn-g:hover{border-color:hsl(42 41% 62%/.6);color:var(--acc)}
+.burger{display:none;width:40px;height:40px;align-items:center;justify-content:center;border:1px solid hsl(140 25% 95%/.13);border-radius:50%;background:none;color:var(--fg);cursor:pointer;font-size:18px}
+.mnav{display:none;border-top:1px solid hsl(140 25% 95%/.1);background:hsl(163 21% 6%/.98);backdrop-filter:blur(20px);padding:8px 20px 20px}
+.mnav button{display:block;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid hsl(140 25% 95%/.07);color:var(--fg);font-family:var(--fd);font-size:1.1em;padding:14px 0;cursor:pointer}
+.mnav button:last-of-type{border-bottom:none}
+.hero{position:relative;min-height:100svh;overflow:hidden;padding-top:64px;isolation:isolate}
+.hero-bg{position:absolute;inset:-8% 0;z-index:0;will-change:transform}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center;animation:kb 40s ease-in-out infinite}
+@keyframes kb{0%,100%{transform:scale(1.06)}50%{transform:scale(1.16) translate(-2%,-1.5%)}}
+.hero-ov{position:absolute;inset:0;z-index:2;background:linear-gradient(100deg,hsl(156 26% 4%/.96) 0%,hsl(156 26% 4%/.88) 42%,hsl(156 26% 4%/.62) 68%,hsl(156 26% 4%/.86) 100%)}
+.haze{position:absolute;inset:0;z-index:2;pointer-events:none;background:radial-gradient(70% 60% at 80% 0%,hsl(159 38% 28%/.28),transparent 70%),radial-gradient(60% 50% at 5% 100%,hsl(159 38% 28%/.18),transparent 70%)}
+.hero-grid{position:relative;z-index:4;max-width:1500px;margin:0 auto;min-height:calc(100svh - 4rem);display:grid;grid-template-columns:1fr 452px;gap:32px;padding:40px 24px 48px}
+.hero-l{display:flex;flex-direction:column;justify-content:center;will-change:transform}
+.eyebrow{font-size:.72em;text-transform:uppercase;letter-spacing:.22em;color:var(--mutfg);font-weight:500}
+.hero-l h1{margin-top:20px;font-family:var(--fd);font-weight:900;text-transform:uppercase;line-height:.94;letter-spacing:-.035em;font-size:clamp(3rem,12vw,6.4rem);text-shadow:0 0 62px hsl(159 38% 28%/.75)}
+.hero-l h1 em{display:block;font-style:normal;color:hsl(42 41% 62%)}
+.lead{margin-top:24px;max-width:26ch;font-size:1.15em;line-height:1.42;color:hsl(140 25% 95%/.85)}
+.promo-line{margin-top:40px;display:flex;align-items:baseline;gap:16px}
+.promo-line b{font-family:var(--fd);font-weight:900;font-size:2.4em;letter-spacing:-.03em;color:hsl(42 41% 62%)}
+.promo-line span{max-width:22ch;font-size:.9em;line-height:1.35;color:var(--mutfg)}
+.glass{background:hsl(157 20% 8%/.78);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 30px 70px rgba(0,0,0,.5);border:1px solid hsl(140 25% 95%/.13);border-radius:26px}
+.hero-card{align-self:start;padding:26px;display:flex;flex-direction:column;gap:16px}
+.hc-row{display:flex;gap:12px;align-items:flex-start}
+.hc-row .e{font-size:20px;line-height:1.2}
+.hc-row b{display:block;font-family:var(--fd);font-weight:600;font-size:1.05em;letter-spacing:-.01em}
+.hc-row span{font-size:.82em;color:var(--mutfg)}
+.hc-cta{margin-top:6px}
+.hc-cta .btn{width:100%}
+.hc-links{display:flex;flex-wrap:wrap;gap:10px}
+.hc-links a{display:inline-flex;align-items:center;gap:8px;border:1px solid hsl(140 25% 95%/.13);border-radius:999px;padding:9px 16px;font-size:.82em;color:var(--fg);text-decoration:none;transition:.3s}
+.hc-links a:hover{border-color:hsl(42 41% 62%/.6);color:var(--acc)}
+section{position:relative;padding:80px 24px}
+.wrap{max-width:1500px;margin:0 auto}
+.sh-head{max-width:640px}
+.sh-head .eyebrow{display:flex;align-items:center;gap:12px}
+.sh-head .eyebrow::before{content:"";width:32px;height:1px;background:hsl(42 41% 62%/.6)}
+.sh-head h2{margin-top:16px;font-family:var(--fd);font-weight:700;font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;letter-spacing:-.02em}
+.sh-head p{margin-top:16px;font-size:.95em;line-height:1.6;color:var(--mutfg)}
+.rv{opacity:0;transform:translateY(40px);transition:opacity 1s var(--ease),transform 1s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.promo-panel{position:relative;overflow:hidden;border-radius:32px;border:1px solid hsl(140 25% 95%/.13);padding:56px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;background:hsl(157 20% 8%/.78);backdrop-filter:blur(22px)}
+.promo-panel .blob{position:absolute;right:-80px;top:-96px;width:288px;height:288px;border-radius:50%;background:hsl(42 41% 62%/.1);filter:blur(48px);pointer-events:none}
+.chips{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px}
+.chip{display:inline-flex;align-items:center;gap:8px;border:1px solid hsl(140 25% 95%/.13);background:hsl(0 0% 100%/.03);border-radius:999px;padding:8px 16px;font-size:.82em;color:hsl(140 25% 95%/.9)}
+.promo-img{position:relative;overflow:hidden;border-radius:26px;border:1px solid hsl(140 25% 95%/.13)}
+.promo-img img{aspect-ratio:4/5;width:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.promo-img:hover img{transform:scale(1.06)}
+.promo-img .ov{position:absolute;inset:0;background:linear-gradient(to top,hsl(156 26% 4%/.9),hsl(156 26% 4%/.1),transparent)}
+.promo-img .big{position:absolute;left:24px;bottom:24px;font-family:var(--fd);font-weight:900;font-size:clamp(3rem,10vw,5rem);line-height:1;color:hsl(42 41% 62%)}
+.book-grid{display:grid;grid-template-columns:1fr 480px;gap:48px}
+.tick{display:flex;gap:12px;align-items:flex-start;margin-top:16px}
+.tick svg{color:var(--acc);flex-shrink:0;margin-top:4px}
+.blinks{margin-top:40px;display:flex;flex-wrap:wrap;gap:12px}
+.blinks a{display:inline-flex;align-items:center;gap:8px;border:1px solid hsl(140 25% 95%/.13);border-radius:999px;padding:12px 24px;font-size:.86em;color:var(--fg);text-decoration:none;transition:.3s}
+.blinks a:hover{border-color:hsl(42 41% 62%/.6);color:var(--acc)}
+.form-panel{padding:32px}
+.form-panel h3{font-family:var(--fd);font-weight:700;font-size:1.55em;letter-spacing:-.02em}
+.form-panel .sub{margin-top:8px;font-size:.86em;color:var(--mutfg)}
+.fgrid{margin-top:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fcol{display:flex;flex-direction:column;gap:6px}
+.fcol.full{grid-column:1/-1}
+.fcol label{font-size:.72em;text-transform:uppercase;letter-spacing:.22em;color:var(--mutfg);font-weight:500}
+.fcol input,.fcol select,.fcol textarea{width:100%;border-radius:16px;border:1px solid hsl(140 25% 95%/.13);background:hsl(0 0% 100%/.05);padding:12px 16px;font-size:.95em;color:var(--fg);outline:none;transition:.3s;font-family:inherit}
+.fcol input:focus,.fcol select:focus,.fcol textarea:focus{border-color:hsl(42 41% 62%/.7);background:hsl(0 0% 100%/.08)}
+.fcol input::-webkit-calendar-picker-indicator{opacity:.5;filter:invert(1)}
+.fcol textarea{resize:none}.fcol select{appearance:none}
+.err{font-size:.72em;color:var(--des)}
+.fsubmit{margin-top:20px;width:100%}
+.fnote{margin-top:12px;text-align:center;font-size:.76em;color:var(--mutfg)}
+.fok{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:40px 0}
+.fok .ic{width:64px;height:64px;border-radius:50%;border:1px solid hsl(42 41% 62%/.4);background:hsl(42 41% 62%/.1);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:26px}
+.tabs{margin-top:40px;display:flex;flex-wrap:wrap;gap:10px}
+.tabs button{display:inline-flex;align-items:center;gap:8px;border-radius:999px;border:1px solid hsl(140 25% 95%/.13);background:none;color:var(--mutfg);padding:10px 20px;font-size:.84em;font-weight:500;cursor:pointer;transition:.3s}
+.tabs button.on{background:var(--prim);color:var(--primfg);border-color:transparent}
+.tabs button:not(.on):hover{border-color:hsl(42 41% 62%/.5);color:var(--fg)}
+.menu-grid{margin-top:40px;display:grid;grid-template-columns:1fr 400px;gap:40px;align-items:start}
+.mlist{display:grid;grid-template-columns:1fr 1fr;gap:4px 56px}
+.mrow{display:flex;align-items:flex-end;gap:12px;border-bottom:1px solid hsl(140 25% 95%/.08);padding:16px 0;transition:border-color .3s}
+.mrow:hover{border-color:hsl(42 41% 62%/.4)}
+.mrow .nm{min-width:0;max-width:75%}
+.mrow .nm .t{font-family:var(--fd);font-weight:600;font-size:1.05em;line-height:1.2;letter-spacing:-.01em;transition:color .3s}
+.mrow:hover .nm .t{color:var(--acc)}
+.mrow .nm .n{margin-top:6px;font-size:.78em;line-height:1.35;color:var(--mutfg)}
+.mrow .dots{flex:1;border-bottom:1px dashed hsl(140 25% 95%/.15);margin-bottom:6px}
+.mrow .pr{font-family:var(--fd);font-weight:600;font-size:1em;color:var(--acc);flex-shrink:0;margin-bottom:6px}
+.mphoto{position:sticky;top:96px;overflow:hidden;border-radius:26px;border:1px solid hsl(140 25% 95%/.13)}
+.mphoto img{aspect-ratio:3/4;width:100%;object-fit:cover;transition:opacity .4s}
+.feat-grid{margin-top:48px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:hsl(140 25% 95%/.1);border:1px solid hsl(140 25% 95%/.1);border-radius:28px;overflow:hidden}
+.feat{background:var(--bg);padding:24px;display:flex;flex-direction:column;gap:12px;transition:background .3s}
+.feat:hover{background:hsl(156 22% 14%/.5)}
+.feat .ic{width:44px;height:44px;border-radius:50%;border:1px solid hsl(42 41% 62%/.25);background:hsl(42 41% 62%/.07);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;transition:border-color .3s}
+.feat:hover .ic{border-color:hsl(42 41% 62%/.6)}
+.feat .t{font-family:var(--fd);font-weight:600;font-size:1.02em;line-height:1.2;letter-spacing:-.01em}
+.feat .d{font-size:.82em;line-height:1.35;color:var(--mutfg)}
+.gal{margin-top:40px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.gal figure{position:relative;overflow:hidden;border-radius:26px;border:1px solid hsl(140 25% 95%/.13)}
+.gal figure.big{grid-column:span 2;grid-row:span 2}
+.gal img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3;transition:transform .8s var(--ease)}
+.gal figure.big img{aspect-ratio:auto;min-height:420px;height:100%}
+.gal figure:hover img{transform:scale(1.06)}
+.gal .gov{position:absolute;inset:0;background:linear-gradient(to top,hsl(156 26% 4%/.85),transparent,transparent)}
+.gal figcaption{position:absolute;left:16px;right:16px;bottom:16px;font-size:.8em;line-height:1.35;color:hsl(140 25% 95%/.9)}
+.amen{margin-top:48px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.amen .a{border-radius:24px;border:1px solid hsl(140 25% 95%/.1);background:hsl(157 20% 8%/.4);padding:24px;transition:.3s}
+.amen .a:hover{border-color:hsl(42 41% 62%/.4);background:hsl(157 20% 8%/.7)}
+.amen .a .e{font-size:22px}
+.amen .t{margin-top:16px;font-family:var(--fd);font-weight:600;font-size:1.08em;letter-spacing:-.01em}
+.amen .d{margin-top:8px;font-size:.84em;line-height:1.35;color:var(--mutfg)}
+.acc-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:40px;align-items:center}
+.acc-photo{position:relative;overflow:hidden;border-radius:26px;border:1px solid hsl(140 25% 95%/.13);margin-top:32px}
+.acc-photo img{aspect-ratio:4/3;width:100%;object-fit:cover}
+.acc-photo .gov{position:absolute;inset:0;background:linear-gradient(to top,hsl(156 26% 4%/.8),transparent,transparent)}
+.acc-photo figcaption{position:absolute;left:20px;right:20px;bottom:16px;font-size:.8em;color:hsl(140 25% 95%/.9)}
+.acclist{display:grid;grid-template-columns:1fr 1fr;gap:12px;list-style:none}
+.acclist li{display:flex;align-items:center;gap:12px;border:1px solid hsl(140 25% 95%/.1);background:hsl(157 20% 8%/.4);border-radius:16px;padding:16px 20px}
+.acclist .e{font-size:18px;color:var(--acc)}
+.acclist span{font-size:.86em;line-height:1.35;color:hsl(140 25% 95%/.9)}
+.rev-panel{margin:48px auto 0;max-width:896px;min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;border-radius:28px;border:1px dashed hsl(140 25% 95%/.15);padding:40px;text-align:center;background:hsl(157 20% 8%/.78)}
+.rev-panel .ic{width:56px;height:56px;border-radius:50%;border:1px solid hsl(42 41% 62%/.3);background:hsl(42 41% 62%/.07);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:24px}
+.rev-panel .stars{display:flex;gap:6px;color:var(--acc)}
+.rev-panel p{max-width:380px;font-size:.86em;color:var(--mutfg)}
+.con-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.con-rows{margin-top:36px;display:flex;flex-direction:column;gap:12px}
+.con-rows a{display:flex;gap:16px;align-items:flex-start;border:1px solid hsl(140 25% 95%/.1);background:hsl(157 20% 8%/.4);border-radius:16px;padding:20px;text-decoration:none;transition:border-color .3s}
+.con-rows a:hover{border-color:hsl(42 41% 62%/.4)}
+.con-rows .e{font-size:19px;color:var(--acc);margin-top:2px;flex-shrink:0}
+.con-rows .lb{font-size:.72em;text-transform:uppercase;letter-spacing:.22em;color:var(--mutfg);font-weight:500}
+.con-rows .vl{margin-top:6px;font-family:var(--fd);font-weight:600;font-size:1.05em;letter-spacing:-.01em;color:var(--fg)}
+.soc{margin-top:32px}.soc .row{margin-top:12px;display:flex;flex-wrap:wrap;gap:12px}
+.soc a{display:inline-flex;align-items:center;gap:8px;border:1px solid hsl(140 25% 95%/.13);border-radius:999px;padding:10px 20px;font-size:.84em;color:var(--fg);text-decoration:none;transition:.3s}
+.soc a:hover{border-color:hsl(42 41% 62%/.6);color:var(--acc)}
+.con-hours{margin-top:32px;display:flex;align-items:center;gap:8px;font-size:.84em;color:var(--mutfg)}
+.con-media{overflow:hidden;border-radius:28px;border:1px solid hsl(140 25% 95%/.13)}
+.con-media figure{position:relative}
+.con-media img{aspect-ratio:16/10;width:100%;object-fit:cover}
+.con-media .gov{position:absolute;inset:0;background:linear-gradient(to top,hsl(156 26% 4%/.8),transparent,transparent)}
+.con-media figcaption{position:absolute;left:20px;right:20px;bottom:16px;font-size:.8em;color:hsl(140 25% 95%/.9)}
+.con-media .mrow2{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid hsl(140 25% 95%/.1);background:hsl(157 20% 8%/.6);padding:16px 20px}
+.con-media .mrow2 span{font-size:.84em;color:var(--mutfg)}
+.con-media .mrow2 a{display:inline-flex;align-items:center;gap:8px;font-size:.84em;font-weight:500;color:var(--acc);text-decoration:none}
+footer{border-top:1px solid hsl(140 25% 95%/.1);background:hsl(163 21% 6%);padding:56px 24px}
+.f-grid{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:40px}
+.f-grid .brand2{display:flex;align-items:center;gap:12px}
+.f-grid .brand2 svg{width:40px;height:40px}
+.f-grid .brand2 span{font-family:var(--fd);font-weight:700;font-size:.9em;letter-spacing:.16em;text-transform:uppercase}
+.f-grid p.tag{margin-top:16px;max-width:24ch;font-size:.84em;line-height:1.35;color:var(--mutfg)}
+.f-grid h4{font-size:.72em;text-transform:uppercase;letter-spacing:.22em;color:var(--mutfg);font-weight:500}
+.f-grid ul{margin-top:16px;list-style:none;display:flex;flex-direction:column;gap:10px}
+.f-grid ul button,.f-grid ul a{background:none;border:none;cursor:pointer;color:var(--mutfg);font-size:.86em;text-decoration:none;transition:color .3s;padding:0;text-align:left}
+.f-grid ul button:hover,.f-grid ul a:hover{color:var(--acc)}
+.f-soc{margin-top:16px;display:flex;gap:12px}
+.f-soc a{width:44px;height:44px;border-radius:50%;border:1px solid hsl(140 25% 95%/.13);display:flex;align-items:center;justify-content:center;color:var(--fg);text-decoration:none;transition:.3s;font-size:17px}
+.f-soc a:hover{border-color:hsl(42 41% 62%/.6);color:var(--acc)}
+.f-bot{max-width:1500px;margin:48px auto 0;padding-top:24px;border-top:1px solid hsl(140 25% 95%/.1);display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:.78em;color:var(--mutfg)}
+.f-bot .age{border:1px solid hsl(140 25% 95%/.13);border-radius:999px;padding:4px 12px}
+@media(max-width:1024px){
+ .hero-grid{grid-template-columns:1fr}.hero-card{max-width:520px}
+ .promo-panel{grid-template-columns:1fr;padding:32px}
+ .book-grid{grid-template-columns:1fr}
+ .menu-grid{grid-template-columns:1fr}.mphoto{display:none}
+ .feat-grid,.amen{grid-template-columns:repeat(2,1fr)}
+ .gal{grid-template-columns:repeat(2,1fr)}.gal figure.big{grid-column:span 2;grid-row:span 1}.gal figure.big img{min-height:0;aspect-ratio:16/9}
+ .acc-grid,.con-grid{grid-template-columns:1fr}
+ .f-grid{grid-template-columns:repeat(2,1fr)}
+ nav.desk,.hphone,.btn-p.desk{display:none}.burger{display:flex}
+}
+@media(max-width:640px){
+ .mlist{grid-template-columns:1fr}.feat-grid,.amen,.gal{grid-template-columns:1fr}.gal figure.big{grid-column:span 1}
+ .acclist{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr}.promo-panel{padding:24px}
+ section{padding:64px 16px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}#glow,#kring,.trail{display:none}}
+</style>
+</head>
+<body>
+<div id="pb"></div>
+<div id="glow"></div><div id="kring"></div>
+
+<header id="hdr">
+ <div class="hbar">
+  <button class="brand" data-go="hero" aria-label="Room's Lounge">
+   <svg viewBox="0 0 64 64" role="img" aria-label="Room's Lounge">
+    <defs>
+     <linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(42 41% 62%/.45)"/><stop offset=".38" stop-color="hsl(42 41% 62%)"/><stop offset=".72" stop-color="hsl(42 41% 62%/.55)"/><stop offset="1" stop-color="hsl(42 41% 62%)"/></linearGradient>
+     <linearGradient id="pl" x1=".5" y1="0" x2=".5" y2="1"><stop offset="0" stop-color="hsl(156 22% 14%)"/><stop offset="1" stop-color="hsl(156 26% 4%)"/></linearGradient>
+     <linearGradient id="lt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="hsl(140 25% 95%)"/><stop offset="1" stop-color="hsl(42 41% 62%)"/></linearGradient>
+    </defs>
+    <circle cx="32" cy="32" r="26" fill="url(#pl)" stroke="url(#gr)" stroke-width="1.4"/>
+    <circle cx="32" cy="32" r="22.2" fill="none" stroke="hsl(42 41% 62%)" stroke-opacity=".3" stroke-width=".55"/>
+    <path d="M32 20.5c-4.4-2.9-3-6.4-.4-8.2 2.7-1.9 3.3-4.6.4-6.9" fill="none" stroke="hsl(42 41% 62%)" stroke-width="1.5" stroke-linecap="round" opacity=".8"/>
+    <text x="24.6" y="43.5" text-anchor="middle" font-family="'Playfair Display',Georgia,serif" font-size="27" font-weight="700" fill="url(#lt)">R</text>
+    <text x="39.4" y="43.5" text-anchor="middle" font-family="'Playfair Display',Georgia,serif" font-size="27" font-weight="700" fill="none" stroke="hsl(42 41% 62%)" stroke-width="1.1">L</text>
+    <path d="M22 48.2h20" stroke="hsl(42 41% 62%)" stroke-opacity=".6" stroke-width=".9" stroke-linecap="round"/>
+   </svg>
+   <b>Room's Lounge</b>
+  </button>
+  <nav class="desk" id="deskNav"></nav>
+  <div class="hright">
+   <div class="lang" id="lang"><button data-l="ru" class="on">RU</button><button data-l="en">EN</button></div>
+   <a class="hphone" href="tel:+70000000000">+7 (000) 000-00-00</a>
+   <button class="btn btn-p desk magnetic" data-go="booking" data-i18n="nav.book">Забронировать стол</button>
+   <button class="burger" id="burger" aria-label="menu">☰</button>
+  </div>
+ </div>
+ <div class="mnav" id="mnav"></div>
+</header>
+
+<section class="hero grain" id="hero">
+ <div class="hero-bg" id="heroBg">
+  <img id="heroImg" alt="" aria-hidden
+   src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=1800&q=80"
+   onerror="this.onerror=function(){this.onerror=function(){this.style.opacity='0'};this.src='https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1800&q=80'};this.src='https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/8e7c41caa-115b-4a57-afc6-e1c03d8867665208.png'">
+ </div>
+ <canvas id="smoke"></canvas>
+ <div class="hero-ov"></div>
+ <div class="haze"></div>
+ <div class="hero-grid">
+  <div class="hero-l" id="heroL">
+   <p class="eyebrow" data-i18n="hero.tagline">Кальянный лаунж-бар · Санкт-Петербург</p>
+   <h1>Room's<em>Lounge</em></h1>
+   <p class="lead" data-i18n="hero.lead">Дымные кальяны и вкусные чаи. Вечер на Русановской, 19.</p>
+   <div class="promo-line"><b data-i18n="hero.promoValue">−20%</b><span data-i18n="hero.promoText">на всё меню, понедельник — четверг, с 14:00 до 18:00</span></div>
+   <div style="margin-top:24px"><button class="btn btn-g magnetic" data-go="menu"><span data-i18n="hero.ghost">Авторские кальяны от 1590 ₽</span></button></div>
+  </div>
+  <aside class="glass hero-card">
+   <div class="eyebrow" data-i18n="hero.cardTitle">Сегодня в лаунже</div>
+   <div class="hc-row"><span class="e">🕐</span><div><b data-i18n="hero.cardHours">14:00 — 02:00</b><span data-i18n="hero.cardHoursD">открыты до последнего гостя</span></div></div>
+   <div class="hc-row"><span class="e">🎵</span><div><b data-i18n="hero.cardMusic">Лаунж-сет</b><span data-i18n="hero.cardMusicD">мягкий фон, разговор без повышения голоса</span></div></div>
+   <div class="hc-row"><span class="e">🪑</span><div><b data-i18n="hero.cardTables">Свободных столов: 3</b><span data-i18n="hero.cardTablesD">вечером разбирают быстро</span></div></div>
+   <div class="hc-cta"><button class="btn btn-p magnetic" data-go="booking" data-i18n="nav.book">Забронировать стол</button></div>
+   <div class="hc-links"><a href="tel:+70000000000">📞 +7 (000) 000-00-00</a><a href="#">✈️ Telegram</a></div>
+  </aside>
+ </div>
+</section>
+
+<section id="promo"><div class="wrap">
+ <div class="promo-panel rv">
+  <span class="blob"></span>
+  <div>
+   <div class="sh-head"><div class="eyebrow" data-i18n="promo.eyebrow">Акция</div><h2 data-i18n="promo.title">Тихие часы</h2><p data-i18n="promo.text">Скидка 20% на всё меню с понедельника по четверг, с 14:00 до 18:00.</p></div>
+   <div class="chips" id="promoChips"></div>
+   <button class="btn btn-p magnetic" style="margin-top:32px" data-go="booking"><span data-i18n="promo.cta">Занять стол в тихие часы</span></button>
+  </div>
+  <div class="promo-img"><img loading="lazy" src="https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/0e7c41caa-115b-4a57-afc6-e1c03d8867665822.png" alt=""><div class="ov"></div><div class="big">20%</div></div>
+ </div>
+</div></section>
+
+<section id="booking" style="border-top:1px solid hsl(140 25% 95%/.1);border-bottom:1px solid hsl(140 25% 95%/.1)"><div class="wrap">
+ <div class="book-grid">
+  <div>
+   <div class="sh-head"><div class="eyebrow" data-i18n="booking.eyebrow">Бронирование</div><h2 data-i18n="booking.title">Стол ждёт вас</h2><p data-i18n="booking.text">Оставьте заявку — управляющий свяжется с вами и подтвердит время. В зале всего 6–7 столов, вечерами их разбирают быстро.</p></div>
+   <div id="bookPoints" style="margin-top:36px"></div>
+   <div class="blinks">
+    <a href="tel:+70000000000">📞 +7 (000) 000-00-00</a>
+    <a href="#">✈️ Telegram</a>
+   </div>
+  </div>
+  <div class="glass form-panel" id="bookForm"></div>
+ </div>
+</div></section>
+
+<section id="menu"><div class="wrap">
+ <div class="sh-head"><div class="eyebrow" data-i18n="menu.eyebrow">Меню</div><h2 data-i18n="menu.title">Что подаём</h2><p data-i18n="menu.text">Авторские кальяны, чайная карта и кухня — китайская, восточная, морская.</p></div>
+ <div class="tabs" id="tabs"></div>
+ <div class="menu-grid">
+  <div class="mlist" id="mlist"></div>
+  <figure class="mphoto"><img id="mphoto" src="" alt="" loading="lazy"></figure>
+ </div>
+</div></section>
+
+<section id="features" style="border-top:1px solid hsl(140 25% 95%/.1)"><div class="wrap">
+ <div class="sh-head"><div class="eyebrow" data-i18n="features.eyebrow">Удобства</div><h2 data-i18n="features.title">Всё для вечера</h2></div>
+ <div class="feat-grid" id="featGrid"></div>
+</div></section>
+
+<section id="atmosphere"><div class="wrap">
+ <div class="sh-head"><div class="eyebrow" data-i18n="atm.eyebrow">Атмосфера</div><h2 data-i18n="atm.title">Вечер в лаунже</h2><p data-i18n="atm.text">Современный интерьер, приглушённый свет и лаунж-музыка. Шесть-семь столов в зале — камерно и без толпы.</p></div>
+ <div class="gal" id="gal"></div>
+ <div class="amen" id="amen"></div>
+</div></section>
+
+<section id="accessibility" style="border-top:1px solid hsl(140 25% 95%/.1)"><div class="wrap">
+ <div class="acc-grid">
+  <div>
+   <div class="sh-head"><div class="eyebrow" data-i18n="acc.eyebrow">Доступность</div><h2 data-i18n="acc.title">Заходите свободно</h2></div>
+   <figure class="acc-photo"><img loading="lazy" src="https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/4e7c41caa-115b-4a57-afc6-e1c03d8867661379.png" alt=""><div class="gov"></div><figcaption data-i18n="acc.photo">Просторный зал без порогов и ступеней</figcaption></figure>
+  </div>
+  <ul class="acclist" id="accList"></ul>
+ </div>
+</div></section>
+
+<section id="reviews" style="border-top:1px solid hsl(140 25% 95%/.1)"><div class="wrap">
+ <div class="sh-head" style="margin:0 auto;text-align:center"><div class="eyebrow" style="justify-content:center" data-i18n="rev.eyebrow">Отзывы</div><h2 data-i18n="rev.title">Что о нас говорят</h2><p style="margin-left:auto;margin-right:auto" data-i18n="rev.text">Здесь появится живая лента отзывов — виджет подключаем.</p></div>
+ <div class="rev-panel rv">
+  <div class="ic">💬</div>
+  <div class="stars">★★★★★</div>
+  <p data-i18n="rev.badge">Виджет отзывов скоро будет здесь</p>
+  <a class="btn btn-g" href="#"><span data-i18n="rev.cta">Оставить отзыв</span></a>
+ </div>
+</div></section>
+
+<section id="contacts" style="border-top:1px solid hsl(140 25% 95%/.1)"><div class="wrap">
+ <div class="con-grid">
+  <div>
+   <div class="sh-head"><div class="eyebrow" data-i18n="con.eyebrow">Контакты</div><h2 data-i18n="con.title">Как нас найти</h2></div>
+   <div class="con-rows" id="conRows"></div>
+   <div class="soc"><div class="eyebrow" data-i18n="con.messengers">Мессенджеры</div><div class="row" id="socRow"></div></div>
+   <p class="con-hours">🕐 <span data-i18n="con.hours">Мы на связи каждый день</span></p>
+  </div>
+  <div class="con-media">
+   <figure><img loading="lazy" src="https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/4e7c41caa-115b-4a57-afc6-e1c03d8867669251.png" alt=""><div class="gov"></div><figcaption data-i18n="con.entrance">Вход в лаунж</figcaption></figure>
+   <div class="mrow2"><span data-i18n="con.mapNote">Ваш город, ваша улица, 00</span><a href="#"><span data-i18n="con.route">Построить маршрут</span> ↗</a></div>
+  </div>
+ </div>
+</div></section>
+
+<footer><div class="f-grid">
+ <div>
+  <div class="brand2">
+   <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="hsl(156 22% 14%)" stroke="hsl(42 41% 62%)" stroke-width="1.4"/><text x="24.6" y="43.5" text-anchor="middle" font-family="Georgia,serif" font-size="27" font-weight="700" fill="hsl(140 25% 95%)">R</text><text x="39.4" y="43.5" text-anchor="middle" font-family="Georgia,serif" font-size="27" font-weight="700" fill="none" stroke="hsl(42 41% 62%)" stroke-width="1.1">L</text></svg>
+   <span>Room's Lounge</span>
+  </div>
+  <p class="tag" data-i18n="footer.tagline">Кальянный лаунж-бар в Санкт-Петербурге</p>
+ </div>
+ <div><h4 data-i18n="footer.sections">Разделы</h4><ul id="fNav"></ul></div>
+ <div><h4 data-i18n="footer.contacts">Контакты</h4><ul>
+  <li><a href="tel:+70000000000">+7 (000) 000-00-00</a></li>
+  <li><a href="tel:+70000000000">+7 (000) 000-00-00</a></li>
+  <li style="max-width:26ch;line-height:1.35" data-i18n="con.addressV">Ваш город, ваша улица, 00</li>
+ </ul></div>
+ <div><h4 data-i18n="footer.social">Соцсети</h4><div class="f-soc">
+  <a href="#" aria-label="WhatsApp">💬</a><a href="#" aria-label="Telegram">✈️</a><a href="#" aria-label="VK">👥</a>
+ </div></div>
+</div>
+<div class="f-bot"><span>© <span id="yr"></span> Room's Lounge. <span data-i18n="footer.rights">Все права защищены</span></span><span class="age" data-i18n="footer.age">18+</span></div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+var $=function(s){return document.querySelector(s)},$$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+var reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var fine=matchMedia('(pointer: fine)').matches;
+$('#yr').textContent=new Date().getFullYear();
+
+var D={
+ru:{'nav.promo':'Акции','nav.booking':'Бронь','nav.menu':'Меню','nav.atmosphere':'Атмосфера','nav.reviews':'Отзывы','nav.contacts':'Контакты','nav.book':'Забронировать стол','hero.lead':'Дымные кальяны и вкусные чаи. Вечер на Русановской, 19.','hero.promoValue':'−20%','hero.promoText':'на всё меню, понедельник — четверг, с 14:00 до 18:00','hero.ghost':'Авторские кальяны от 1590 ₽','hero.tagline':'Кальянный лаунж-бар · Санкт-Петербург','hero.cardTitle':'Сегодня в лаунже','hero.cardHours':'14:00 — 02:00','hero.cardHoursD':'открыты до последнего гостя','hero.cardMusic':'Лаунж-сет','hero.cardMusicD':'мягкий фон, разговор без повышения голоса','hero.cardTables':'Свободных столов: 3','hero.cardTablesD':'вечером разбирают быстро','form.title':'Бронь стола','form.subtitle':'В зале 6 столов — займите свой.','form.name':'Имя','form.namePh':'Александр','form.phone':'Телефон','form.phonePh':'+7 (___) ___-__-__','form.date':'Дата','form.time':'Время','form.guests':'Гостей','form.comment':'Комментарий','form.commentPh':'Стол у окна, крепкий кальян','form.submit':'Забронировать стол','form.sending':'Отправляем…','form.note':'Ответим в течение 10 минут','form.errName':'Укажите имя','form.errPhone':'Укажите телефон','form.errDate':'Выберите дату','form.errTime':'Выберите время','form.okTitle':'Заявка принята','form.okText':'Мы перезвоним и подтвердим бронь в течение 10 минут.','form.new':'Забронировать ещё один стол','promo.eyebrow':'Акция','promo.title':'Тихие часы','promo.text':'Скидка 20% на всё меню с понедельника по четверг, с 14:00 до 18:00.','promo.days':'Пн — Чт','promo.hours':'14:00 — 18:00','promo.all':'Всё меню','promo.cta':'Занять стол в тихие часы','booking.eyebrow':'Бронирование','booking.title':'Стол ждёт вас','booking.text':'Оставьте заявку — управляющий свяжется с вами и подтвердит время. В зале всего 6–7 столов, вечерами их разбирают быстро.','booking.p1':'Бронь бесплатна и ни к чему не обязывает','booking.p2':'Держим стол 20 минут после назначенного времени','booking.p3':'Банкетный зал и большие компании — по телефону управляющего','menu.eyebrow':'Меню','menu.title':'Что подаём','menu.text':'Авторские кальяны, чайная карта и кухня — китайская, восточная, морская.','menu.tea':'Чай','menu.snacks':'Снэки','menu.lemonades':'Лимонады','menu.hot':'Горячие закуски','menu.cold':'Холодные напитки','menu.hookah':'Кальяны','menu.desserts':'Десерты','features.eyebrow':'Удобства','features.title':'Всё для вечера','atm.eyebrow':'Атмосфера','atm.title':'Вечер в лаунже','atm.text':'Современный интерьер, приглушённый свет и лаунж-музыка. Шесть-семь столов в зале — камерно и без толпы.','atm.tables':'6–7 столов в зале','acc.eyebrow':'Доступность','acc.title':'Заходите свободно','acc.photo':'Просторный зал без порогов и ступеней','rev.eyebrow':'Отзывы','rev.title':'Что о нас говорят','rev.text':'Здесь появится живая лента отзывов — виджет подключаем.','rev.badge':'Виджет отзывов скоро будет здесь','rev.cta':'Оставить отзыв','con.eyebrow':'Контакты','con.title':'Как нас найти','con.address':'Адрес','con.addressV':'Ваш город, ваша улица, 00','con.phone':'Телефон','con.manager':'Телефон управляющего','con.messengers':'Мессенджеры','con.hours':'Мы на связи каждый день','con.route':'Построить маршрут','con.mapNote':'Ваш город, ваша улица, 00','con.entrance':'Вход в лаунж','footer.tagline':'Кальянный лаунж-бар в Санкт-Петербурге','footer.rights':'Все права защищены','footer.sections':'Разделы','footer.contacts':'Контакты','footer.social':'Соцсети','footer.age':'18+'},
+en:{'nav.promo':'Offers','nav.booking':'Booking','nav.menu':'Menu','nav.atmosphere':'Atmosphere','nav.reviews':'Reviews','nav.contacts':'Contacts','nav.book':'Book a table','hero.lead':'Smoky hookahs and fine teas. An evening at Rusanovskaya 19.','hero.promoValue':'−20%','hero.promoText':'off the whole menu, Monday to Thursday, 2 PM to 6 PM','hero.ghost':'Signature hookahs from 1590 ₽','hero.tagline':'Hookah lounge bar · Saint Petersburg','hero.cardTitle':'Tonight at the lounge','hero.cardHours':'2 PM — 2 AM','hero.cardHoursD':'open until the last guest','hero.cardMusic':'Lounge set','hero.cardMusicD':'soft background, no raising voices','hero.cardTables':'3 tables free','hero.cardTablesD':'they go fast in the evening','form.title':'Table booking','form.subtitle':'Only 6 tables in the room — take yours.','form.name':'Name','form.namePh':'Alexander','form.phone':'Phone','form.phonePh':'+7 (___) ___-__-__','form.date':'Date','form.time':'Time','form.guests':'Guests','form.comment':'Comment','form.commentPh':'Table by the window, strong hookah','form.submit':'Book a table','form.sending':'Sending…','form.note':'We reply within 10 minutes','form.errName':'Please enter your name','form.errPhone':'Please enter your phone','form.errDate':'Choose a date','form.errTime':'Choose a time','form.okTitle':'Request received','form.okText':'We will call you back and confirm the booking within 10 minutes.','form.new':'Book another table','promo.eyebrow':'Special offer','promo.title':'Quiet hours','promo.text':'20% off the entire menu from Monday to Thursday, 2 PM to 6 PM.','promo.days':'Mon — Thu','promo.hours':'2 PM — 6 PM','promo.all':'Whole menu','promo.cta':'Take a table during quiet hours','booking.eyebrow':'Reservation','booking.title':'Your table is waiting','booking.text':'Leave a request — the manager will call you back and confirm the time.','booking.p1':'Booking is free and non-binding','booking.p2':'We hold the table for 20 minutes','booking.p3':'Banquet hall — call the manager','menu.eyebrow':'Menu','menu.title':'What we serve','menu.text':'Signature hookahs, a tea list and a kitchen.','menu.tea':'Tea','menu.snacks':'Snacks','menu.lemonades':'Lemonades','menu.hot':'Hot starters','menu.cold':'Cold drinks','menu.hookah':'Hookahs','menu.desserts':'Desserts','features.eyebrow':'Amenities','features.title':'Everything for the evening','atm.eyebrow':'Atmosphere','atm.title':'An evening in the lounge','atm.text':'Modern interior, dimmed light and lounge music.','atm.tables':'6–7 tables in the room','acc.eyebrow':'Accessibility','acc.title':'Come in freely','acc.photo':'Spacious step-free hall','rev.eyebrow':'Reviews','rev.title':'What people say','rev.text':'A live review feed will appear here.','rev.badge':'Review widget coming soon','rev.cta':'Leave a review','con.eyebrow':'Contacts','con.title':'How to find us','con.address':'Address','con.addressV':'Your city, your street, 00','con.phone':'Phone','con.manager':'Manager phone','con.messengers':'Messengers','con.hours':'We are in touch every day','con.route':'Get directions','con.mapNote':'Your city, your street, 00','con.entrance':'Lounge entrance','footer.tagline':'Hookah lounge bar in Saint Petersburg','footer.rights':'All rights reserved','footer.sections':'Sections','footer.contacts':'Contacts','footer.social':'Social','footer.age':'18+'}};
+var lang='ru';
+function t(k){return (D[lang][k]!==undefined)?D[lang][k]:k}
+
+var LINKS=[['promo','nav.promo'],['booking','nav.booking'],['menu','nav.menu'],['atmosphere','nav.atmosphere'],['reviews','nav.reviews'],['contacts','nav.contacts']];
+function go(id){var el=document.getElementById(id);if(el)el.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'});}
+function buildNav(){
+ $('#deskNav').innerHTML=LINKS.map(function(l){return '<button data-go="'+l[0]+'">'+t(l[1])+'</button>'}).join('');
+ $('#mnav').innerHTML=LINKS.map(function(l){return '<button data-go="'+l[0]+'">'+t(l[1])+'</button>'}).join('')+'<button class="btn btn-p" style="margin-top:16px;width:100%" data-go="booking">'+t('nav.book')+'</button>';
+ $('#fNav').innerHTML=LINKS.map(function(l){return '<li><button data-go="'+l[0]+'">'+t(l[1])+'</button></li>'}).join('');
+}
+document.addEventListener('click',function(e){var g=e.target.closest('[data-go]');if(g){go(g.getAttribute('data-go'));$('#mnav').style.display='none';}});
+$('#burger').addEventListener('click',function(){var m=$('#mnav');m.style.display=(m.style.display==='block')?'none':'block';});
+$('#lang').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;lang=b.getAttribute('data-l');applyLang();});
+
+var IMG={
+ hookah:'https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/4e7c41caa-115b-4a57-afc6-e1c03d8867662640.png',
+ tea:'https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/0e7c41caa-115b-4a57-afc6-e1c03d8867662948.png',
+ snacks:'https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/6e7c41caa-115b-4a57-afc6-e1c03d8867668881.png',
+ lemonades:'https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/0e7c41caa-115b-4a57-afc6-e1c03d8867666118.png',
+ hot:'https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/3e7c41caa-115b-4a57-afc6-e1c03d8867665523.png',
+ cold:'https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/8e7c41caa-115b-4a57-afc6-e1c03d8867667750.png',
+ desserts:'https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/4e7c41caa-115b-4a57-afc6-e1c03d8867666714.png'
+};
+var MENU=[
+ {id:'hookah',key:'menu.hookah',items:[['Авторское меню PREMIUM','PREMIUM signature menu','1590 ₽','DS, Starline, Black BURN, Overdose, NAШ, Spectrum','DS, Starline, Black BURN, Overdose, NASH, Spectrum'],['Fruit Bowl (грейпфрут)','Fruit Bowl (grapefruit)','1890 ₽'],['Fruit Bowl (ананас)','Fruit Bowl (pineapple)','2390 ₽']]},
+ {id:'tea',key:'menu.tea',items:[['Чёрный чай ассам','Assam black tea','380 ₽'],['Чай с чабрецом','Thyme tea','380 ₽'],['Чёрный чай эрл грей','Earl Grey black tea','380 ₽'],['Зелёный чай жасмин','Jasmine green tea','380 ₽'],['Зелёный чай лимон-мята','Lemon-mint green tea','380 ₽'],['Молочный улун','Milk oolong','480 ₽'],['Чёрный чай облепиховый','Sea buckthorn black tea','480 ₽'],['Чёрный чай клубника со сливками','Strawberries and cream black tea','480 ₽'],['Вишнёвый пунш','Cherry punch','480 ₽'],['Фруктовый чай «Турецкое яблоко»','Turkish apple fruit tea','480 ₽'],['Дворцовый Пуэр','Imperial Pu-erh','550 ₽']]},
+ {id:'snacks',key:'menu.snacks',items:[['Арахис','Peanuts','250 ₽'],['Фисташки','Pistachios','410 ₽'],['Чипсы','Chips','280 ₽'],['Гренки','Croutons','260 ₽'],['Сыр косичка','Braided cheese','390 ₽'],['Вяленое мясо','Dried meat','410 ₽'],['Кальмары','Squid','380 ₽'],['Сырные бочонки','Cheese barrels','290 ₽'],['Пивная тарелка','Beer platter','1390 ₽','Гренки, сыр, мясо, кальмар, бочонки','Croutons, cheese, meat, squid']]},
+ {id:'lemonades',key:'menu.lemonades',items:[['Освежающая вода с цитрусами','Refreshing citrus water','250 / 450 ₽','0,4 л / 1 л','0.4/1 l'],['Цитрусовый лимонад','Citrus lemonade','360 / 590 ₽','0,4 л / 1 л','0.4/1 l'],['Клубника-базилик','Strawberry & basil','360 / 590 ₽','0,4 л / 1 л','0.4/1 l'],['Мохито б/а','Non-alc mojito','360 / 590 ₽','0,4 л / 1 л','0.4/1 l']]},
+ {id:'hot',key:'menu.hot',items:[['Картофель айдахо','Idaho potatoes','280 ₽'],['Креветки','Shrimp','440 ₽'],['Жареный сыр косичка','Fried braided cheese','380 ₽'],['Сырные палочки','Cheese sticks','380 ₽'],['Куриные стрипсы','Chicken strips','380 ₽']]},
+ {id:'cold',key:'menu.cold',items:[['Лимонад «Волчок» 450 мл','Volchok lemonade 450 ml','200 ₽','В ассортименте','Assorted'],['Газировка 0,33','Soda 0.33','150 ₽'],['Газировка 0,5','Soda 0.5','200 ₽'],['Вода газ/без 330 мл','Water 330 ml','210 ₽'],['Red Bull 250 мл','Red Bull 250 ml','250 ₽']]},
+ {id:'desserts',key:'menu.desserts',items:[['Турецкая пахлава ассорти','Assorted Turkish baklava','390 ₽'],['Плитка шоколада','Chocolate bar','250 ₽'],['Домашнее варенье','Homemade jam','390 ₽','Сникерс, баунти, пломбир и др.','Snickers, Bounty, ice cream...']]}
+];
+var activeCat='hookah';
+function buildMenu(){
+ $('#tabs').innerHTML=MENU.map(function(c){return '<button data-cat="'+c.id+'" class="'+(c.id===activeCat?'on':'')+'">'+t(c.key)+'</button>'}).join('');
+ var c=MENU.find(function(x){return x.id===activeCat});
+ $('#mlist').innerHTML=c.items.map(function(it){
+  var nm=(lang==='en'?it[1]:it[0]);var note=(lang==='en'?(it[4]||''):(it[3]||''));
+  return '<div class="mrow"><div class="nm"><div class="t">'+nm+'</div>'+(note?'<div class="n">'+note+'</div>':'')+'</div><span class="dots"></span><span class="pr">'+it[2]+'</span></div>';
+ }).join('');
+ $('#mphoto').src=IMG[c.id];
+}
+$('#tabs').addEventListener('click',function(e){var b=e.target.closest('[data-cat]');if(!b)return;activeCat=b.getAttribute('data-cat');buildMenu();});
+
+var GAL=[
+ ['https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/3e7c41caa-115b-4a57-afc6-e1c03d8867661719.png','Зал с балдахинами','Canopy hall',1],
+ ['https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/4e7c41caa-115b-4a57-afc6-e1c03d8867669251.png','Неоновый бар','Neon bar',0],
+ ['https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/4e7c41caa-115b-4a57-afc6-e1c03d8867661379.png','Изумрудные диваны','Emerald sofas',0],
+ ['https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/0e7c41caa-115b-4a57-afc6-e1c03d8867661020.png','VIP-кабинет','VIP room',0],
+ ['https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/3e7c41caa-115b-4a57-afc6-e1c03d8867663915.png','Мрачный лаунж','Moody lounge',0],
+ ['https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/7e7c41caa-115b-4a57-afc6-e1c03d8867665320.png','UV-мурал','UV mural',0],
+ ['https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/5e7c41caa-115b-4a57-afc6-e1c03d8867666365.png','Уютный уголок','Cosy corner',0],
+ ['https://image.qwenlm.ai/public_source/0e64078f-f492-44ee-bfd8-8fab3684c870/1e7c41caa-115b-4a57-afc6-e1c03d8867667924.png','Терраса','Terrace',0]
+];
+function buildGal(){$('#gal').innerHTML=GAL.map(function(g){return '<figure class="'+(g[3]?'big':'')+'"><img loading="lazy" src="'+g[0]+'" alt=""><div class="gov"></div><figcaption>'+(lang==='en'?g[2]:g[1])+'</figcaption></figure>'}).join('');}
+var AMEN=[['🎮','PlayStation 5','Игровые приставки и джойстики'],['🎲','Настольные игры','Полка с играми на любой состав'],['📺','Спортивные трансляции','Матчи на большом экране'],['🍷','Барная стойка','И винная карта к вечеру'],['🎉','Банкетный зал','Дни рождения и закрытые компании'],['💻','Можно с ноутбуком','Розетки, Wi-Fi, спокойный зал'],['🎤','Стендапы','Вечера открытого микрофона'],['🎵','Лаунж-музыка','Мягкий фон без перекрикивания']];
+function buildAmen(){$('#amen').innerHTML=AMEN.map(function(a){return '<div class="a"><div class="e">'+a[0]+'</div><div class="t">'+a[1]+'</div><div class="d">'+a[2]+'</div></div>'}).join('');}
+var ACC=[['♿','Пандус на входе'],['🔔','Кнопка вызова персонала'],['🚪','Доступный вход и зал для колясок'],['🅿️','Парковка для людей с инвалидностью'],['🆓','Бесплатная парковка']];
+function buildAcc(){$('#accList').innerHTML=ACC.map(function(a){return '<li><span class="e">'+a[0]+'</span><span>'+a[1]+'</span></li>'}).join('');}
+function buildCon(){
+ $('#conRows').innerHTML=[['📍','con.address','Ваш город, ваша улица, 00','#'],['📞','con.phone','+7 (000) 000-00-00','tel:+70000000000'],['👤','con.manager','+7 (000) 000-00-00','tel:+70000000000']].map(function(r){
+  return '<a href="'+r[3]+'"><span class="e">'+r[0]+'</span><div><div class="lb">'+t(r[1])+'</div><div class="vl">'+r[2]+'</div></div></a>';
+ }).join('');
+ $('#socRow').innerHTML=[['💬','WhatsApp','#'],['✈️','Telegram','#'],['👥','VK','#']].map(function(s){return '<a href="'+s[2]+'">'+s[0]+' '+s[1]+'</a>'}).join('');
+}
+function buildPromo(){$('#promoChips').innerHTML=['📅 '+t('promo.days'),'🕐 '+t('promo.hours'),'🍽 '+t('promo.all')].map(function(c){return '<span class="chip">'+c+'</span>'}).join('');}
+function buildPoints(){$('#bookPoints').innerHTML=['booking.p1','booking.p2','booking.p3'].map(function(p){return '<div class="tick"><span style="color:var(--acc)">✓</span><span style="font-size:.92em;color:hsl(140 25% 95%/.85)">'+t(p)+'</span></div>'}).join('');}
+
+function formHTML(){
+ return '<form data-bf novalidate>'+
+ '<h3>'+t('form.title')+'</h3><p class="sub">'+t('form.subtitle')+'</p>'+
+ '<div class="fgrid">'+
+ '<div class="fcol full"><label>'+t('form.name')+'</label><input name="name" placeholder="'+t('form.namePh')+'"><span class="err" data-e="name"></span></div>'+
+ '<div class="fcol full"><label>'+t('form.phone')+'</label><input name="phone" type="tel" inputmode="tel" placeholder="'+t('form.phonePh')+'"><span class="err" data-e="phone"></span></div>'+
+ '<div class="fcol"><label>'+t('form.date')+'</label><input name="date" type="date"><span class="err" data-e="date"></span></div>'+
+ '<div class="fcol"><label>'+t('form.time')+'</label><input name="time" type="time"><span class="err" data-e="time"></span></div>'+
+ '<div class="fcol full"><label>'+t('form.guests')+'</label><select name="guests">'+Array.from({length:12},function(_,i){return '<option value="'+(i+1)+'">'+(i+1)+'</option>'}).join('')+'</select></div>'+
+ '<div class="fcol full"><label>'+t('form.comment')+'</label><textarea name="comment" rows="3" placeholder="'+t('form.commentPh')+'"></textarea></div>'+
+ '</div><button type="submit" class="btn btn-p fsubmit magnetic">'+t('form.submit')+'</button><p class="fnote">'+t('form.note')+'</p></form>';
+}
+function buildForms(){$('#bookForm').innerHTML=formHTML();bindForms();}
+function bindForms(){
+ $$('form[data-bf]').forEach(function(f){
+  f.addEventListener('submit',function(e){
+   e.preventDefault();
+   var g=function(n){return f.querySelector('[name="'+n+'"]')};
+   var errs={name:t('form.errName'),phone:t('form.errPhone'),date:t('form.errDate'),time:t('form.errTime')};
+   var ok=true;
+   ['name','phone','date','time'].forEach(function(k){
+    var v=(g(k).value||'').trim();var bad=false;
+    if(k==='phone')bad=v.replace(/\D/g,'').length<10;else bad=!v;
+    f.querySelector('[data-e="'+k+'"]').textContent=bad?errs[k]:'';if(bad)ok=false;
+   });
+   if(!ok)return;
+   var btn=f.querySelector('.fsubmit');btn.disabled=true;btn.textContent=t('form.sending');
+   setTimeout(function(){
+    f.outerHTML='<div class="fok"><div class="ic">✓</div><h3 style="font-family:var(--fd);font-size:1.6em">'+t('form.okTitle')+'</h3><p style="max-width:280px;font-size:.9em;color:var(--mutfg)">'+t('form.okText')+'</p><button class="btn btn-g" data-rebook>'+t('form.new')+'</button></div>';
+   },900);
+  });
+ });
+}
+document.addEventListener('click',function(e){if(e.target.closest('[data-rebook]'))buildForms();});
+
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+function observeRv(){$$('.rv').forEach(function(el){io.observe(el)})}
+
+if(fine&&!reduced){
+ var glow=$('#glow'),kring=$('#kring'),mx=innerWidth/2,my=innerHeight/2,gx=mx,gy=my,kx=mx,ky=my,visible=false;
+ var trails=[];for(var i=0;i<4;i++){var d=document.createElement('div');d.className='trail';d.style.opacity='0';document.body.appendChild(d);trails.push({el:d,x:mx,y:my});}
+ function show(){visible=true;glow.style.opacity='1';kring.style.opacity='1';}
+ function hide(){visible=false;glow.style.opacity='0';kring.style.opacity='0';trails.forEach(function(t){t.el.style.opacity='0'});}
+ addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY;if(!visible)show();},{passive:true});
+ document.documentElement.addEventListener('mouseleave',hide);
+ addEventListener('blur',hide);
+ (function cl(){
+  gx+=(mx-gx)*.12;gy+=(my-gy)*.12;kx+=(mx-kx)*.22;ky+=(my-ky)*.22;
+  glow.style.left=gx+'px';glow.style.top=gy+'px';
+  kring.style.left=kx+'px';kring.style.top=ky+'px';
+  var px=mx,py=my;trails.forEach(function(t,idx){t.x+=(px-t.x)*.3;t.y+=(py-t.y)*.3;t.el.style.left=t.x+'px';t.el.style.top=t.y+'px';if(visible)t.el.style.opacity=String(.4-idx*.09);px=t.x;py=t.y;});
+  requestAnimationFrame(cl);
+ })();
+ document.addEventListener('mouseover',function(e){if(e.target.closest('a,button,.mrow,.feat,.a,.gal figure,.promo-img'))kring.classList.add('hov')});
+ document.addEventListener('mouseout',function(e){if(e.target.closest('a,button,.mrow,.feat,.a,.gal figure,.promo-img'))kring.classList.remove('hov')});
+ document.addEventListener('mousemove',function(e){var b=e.target.closest('.magnetic');if(!b)return;var r=b.getBoundingClientRect();b.style.transform='translate('+((e.clientX-r.left-r.width/2)*.22)+'px,'+((e.clientY-r.top-r.height/2)*.3)+'px)';});
+ document.addEventListener('mouseout',function(e){var b=e.target.closest('.magnetic');if(b)b.style.transform='';});
+}
+
+(function(){
+ if(reduced)return;
+ var c=$('#smoke');if(!c)return;var ctx=c.getContext('2d');if(!ctx)return;
+ var W=0,H=0,dpr=1;function rs(){dpr=Math.min(devicePixelRatio||1,1.5);W=c.clientWidth;H=c.clientHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}rs();addEventListener('resize',rs);
+ var P=new Uint8Array(512);(function(){var p=new Uint8Array(256),i,s=1337;for(i=0;i<256;i++)p[i]=i;var r=function(){return (s=s*16807%2147483647)/2147483647};for(i=255;i>0;i--){var j=Math.floor(r()*(i+1));var t2=p[i];p[i]=p[j];p[j]=t2;}for(i=0;i<512;i++)P[i]=p[i&255];})();
+ function fade(t){return t*t*t*(t*(t*6-15)+10)}
+ function grad(h,x,y){switch(h&3){case 0:return x+y;case 1:return -x+y;case 2:return x-y;default:return -x-y}}
+ function noise(x,y){var X=Math.floor(x)&255,Y=Math.floor(y)&255;x-=Math.floor(x);y-=Math.floor(y);var u=fade(x),v=fade(y);var a=P[X]+Y,b=P[X+1]+Y;return (1-v)*((1-u)*grad(P[a],x,y)+u*grad(P[b],x-1,y))+v*((1-u)*grad(P[a+1],x,y-1)+u*grad(P[b+1],x-1,y-1))}
+ var N=Math.round(Math.min(160,(W*H)/12000));var parts=[];function spawn(){return{x:Math.random()*W,y:H+Math.random()*H*.3,vx:0,vy:0,life:0,max:240+Math.random()*240,r:18+Math.random()*46}}
+ for(var i=0;i<N;i++)parts.push(spawn());
+ var m={x:W/2,y:H/2,px:W/2,py:H/2,vx:0,vy:0};
+ addEventListener('mousemove',function(e){var r=c.getBoundingClientRect();m.x=e.clientX-r.left;m.y=e.clientY-r.top;},{passive:true});
+ var sy=window.scrollY;addEventListener('scroll',function(){sy=window.scrollY},{passive:true});
+ var vis=true;new IntersectionObserver(function(e){vis=e[0].isIntersecting}).observe(c);
+ var t3=0;function step(){requestAnimationFrame(step);if(!vis||document.hidden)return;t3+=.0035;m.vx=m.x-m.px;m.vy=m.y-m.py;m.px=m.x;m.py=m.y;
+  ctx.globalCompositeOperation='destination-out';ctx.fillStyle='rgba(0,0,0,.085)';ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='lighter';
+  var sd=sy*.0006;
+  for(var i=0;i<parts.length;i++){var p=parts[i];var e2=.01,nx=p.x*.0016,ny=p.y*.0016;
+   var cx=(noise(nx,ny+e2+sd)-noise(nx,ny-e2+sd))/(2*e2);var cy=-(noise(nx+e2,ny+sd)-noise(nx-e2,ny+sd))/(2*e2);
+   p.vx+=cx*.06+(m.x-p.x)*.00002+m.vx*.002;p.vy+=cy*.06-.02+(m.y-p.y)*.00002+m.vy*.002;p.vx*=.94;p.vy*=.94;p.x+=p.vx;p.y+=p.vy;p.life++;
+   if(p.life>p.max||p.y<-p.r||p.x<-p.r||p.x>W+p.r){Object.assign(p,spawn());}
+   var lt=p.life/p.max;var al=Math.sin(lt*Math.PI)*.16;var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+   g.addColorStop(0,'rgba(232,192,122,'+al+')');g.addColorStop(.5,'rgba(150,120,90,'+(al*.5)+')');g.addColorStop(1,'rgba(0,0,0,0)');
+   ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.283);ctx.fill();}
+ }step();
+})();
+
+var heroBg=$('#heroBg'),heroL=$('#heroL');
+function onScroll(){
+ var y=window.scrollY;$('#pb').style.width=(y/(document.documentElement.scrollHeight-innerHeight)*100)+'%';
+ $('#hdr').classList.toggle('sc',y>12);
+ if(!reduced&&y<innerHeight*1.3){heroBg.style.transform='translateY('+(y*.26)+'px)';heroL.style.transform='translateY('+(y*-.06)+'px)';}
+}
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+function applyLang(){
+ $$('[data-i18n]').forEach(function(el){el.textContent=t(el.getAttribute('data-i18n'))});
+ buildNav();buildMenu();buildGal();buildAmen();buildAcc();buildCon();buildPromo();buildPoints();buildForms();
+ document.documentElement.lang=lang;
+ $$('#lang button').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-l')===lang)});
+}
+applyLang();observeRv();
+})();
+</script>
+</body>
+</html>
