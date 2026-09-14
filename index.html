@@ -286,6 +286,34 @@ footer{border-top:1px solid var(--line);background:var(--velvet2);padding:56px 2
 @media(max-width:640px){.fgrid{grid-template-columns:1fr}.f-grid{grid-template-columns:1fr}.gal{grid-template-columns:1fr}.gal figure:nth-child(1){grid-column:span 1}section{padding:64px 16px}.book-panel{padding:30px 18px}}
 @media(max-width:768px){body{cursor:auto}#glow,#kring,.trail{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}#glow,#kring,.trail{display:none}#loader{display:none}}
+
+/* ===== ROOM'S LOUNGE — MOTION STABILITY PATCH ===== */
+html{overflow-anchor:none}
+body{overflow-anchor:none}
+header{transform:none!important;opacity:1!important;will-change:background,box-shadow}
+.hbar{transform:none!important}
+nav.desk,.hright,.brand{opacity:1!important;visibility:visible!important}
+.hero-in{will-change:transform}
+.hero-bg{will-change:transform}
+#loader{will-change:opacity,visibility}
+body.loading header{pointer-events:none}
+body.loading .hero-in{opacity:0}
+body:not(.loading) .hero-in{opacity:1}
+
+/* Motion surfaces — no layout-affecting transforms */
+.hero-bg img,.about-photo img,.gal figure img{will-change:transform}
+.gal figure,.q,.acc li,.crow,.mrow,.about-photo{will-change:transform}
+.btn,.brand,.burger,nav.desk button,.menu-tabs button{will-change:transform}
+[data-motion-float]{will-change:transform}
+
+/* keep the fixed header visually locked while content is moving underneath */
+@media(max-width:768px){
+  header{transform:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  [data-motion-float]{transform:none!important}
+}
+
 </style>
 </head>
 <body class="loading">
@@ -470,8 +498,17 @@ function ic(n){return IC[n]||''}
 $$('[data-icon]').forEach(function(el){if(el.dataset.iconDone)return;el.dataset.iconDone='1';el.insertAdjacentHTML('afterbegin',ic(el.getAttribute('data-icon')));});
 
 var loader=$('#loader'),ldT0=performance.now(),ldDone=false;
-function hideLoader(){if(ldDone)return;ldDone=true;var w=Math.max(0,900-(performance.now()-ldT0));setTimeout(function(){loader.classList.add('done');document.body.classList.remove('loading');},w);}
-if(document.readyState==='complete')hideLoader();else window.addEventListener('load',hideLoader);
+function hideLoader(){
+ if(ldDone)return;
+ ldDone=true;
+ var w=Math.max(0,650-(performance.now()-ldT0));
+ setTimeout(function(){
+   if(loader)loader.classList.add('done');
+   document.body.classList.remove('loading');
+   requestAnimationFrame(function(){document.documentElement.style.setProperty('--page-ready','1');});
+ },w);
+}
+if(document.readyState==='complete')hideLoader();else window.addEventListener('load',hideLoader,{once:true});
 setTimeout(hideLoader,2800);
 
 var D={
@@ -744,6 +781,181 @@ function applyLang(){
 }
 applyLang();observeRv();
 })();
+
+
+/* ===== ROOM'S LOUNGE — MOTION ENGINE v2 / STABLE ===== */
+(function(){
+  'use strict';
+  try{
+    var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce)return;
+
+    var root=document.documentElement;
+    var hero=document.getElementById('hero');
+    var heroBg=document.getElementById('heroBg');
+    var about=document.getElementById('aboutPhoto');
+    var hdr=document.getElementById('hdr');
+
+    /* ---------- pointer state ---------- */
+    var pointer={x:innerWidth*.5,y:innerHeight*.45,tx:innerWidth*.5,ty:innerHeight*.45};
+    var hasPointer=false;
+    addEventListener('pointermove',function(e){
+      pointer.tx=e.clientX;
+      pointer.ty=e.clientY;
+      hasPointer=true;
+    },{passive:true});
+
+    /* ---------- scroll state ---------- */
+    var sy=window.scrollY||0, targetY=sy, lastY=sy, velocity=0;
+    addEventListener('scroll',function(){targetY=window.scrollY||0;},{passive:true});
+
+    /* ---------- cursor spotlight ---------- */
+    if(window.matchMedia('(pointer:fine)').matches){
+      var glow=document.getElementById('glow');
+      var ring=document.getElementById('kring');
+      if(glow&&ring){
+        root.style.setProperty('--mx',pointer.x+'px');
+        root.style.setProperty('--my',pointer.y+'px');
+        addEventListener('pointermove',function(e){
+          root.style.setProperty('--mx',e.clientX+'px');
+          root.style.setProperty('--my',e.clientY+'px');
+        },{passive:true});
+      }
+    }
+
+    /* ---------- gentle 3D tilt: pointer only, never on header ---------- */
+    var tiltItems=[];
+    document.querySelectorAll('.gal figure,.q,.acc li,.crow,.about-photo,.mrow').forEach(function(el){
+      tiltItems.push({el:el,rx:0,ry:0,trX:0,trY:0});
+      el.addEventListener('pointermove',function(e){
+        if(e.pointerType!=='mouse' && e.pointerType!=='pen')return;
+        var r=el.getBoundingClientRect();
+        if(!r.width||!r.height)return;
+        var px=(e.clientX-r.left)/r.width-.5;
+        var py=(e.clientY-r.top)/r.height-.5;
+        el.style.setProperty('--rx',(-py*4)+'deg');
+        el.style.setProperty('--ry',(px*4)+'deg');
+        el.style.setProperty('--tx',(px*3)+'px');
+        el.style.setProperty('--ty',(py*-3)+'px');
+      },{passive:true});
+      el.addEventListener('pointerleave',function(){
+        el.style.setProperty('--rx','0deg');
+        el.style.setProperty('--ry','0deg');
+        el.style.setProperty('--tx','0px');
+        el.style.setProperty('--ty','0px');
+      },{passive:true});
+    });
+
+    /* ---------- magnetic controls, clamped so buttons never jump ---------- */
+    document.querySelectorAll('.btn,.brand,.burger').forEach(function(el){
+      var baseX=0,baseY=0;
+      el.addEventListener('pointermove',function(e){
+        if(e.pointerType!=='mouse' && e.pointerType!=='pen')return;
+        var r=el.getBoundingClientRect();
+        if(!r.width||!r.height)return;
+        var dx=(e.clientX-(r.left+r.width/2));
+        var dy=(e.clientY-(r.top+r.height/2));
+        var max=10;
+        dx=Math.max(-max,Math.min(max,dx*.10));
+        dy=Math.max(-max,Math.min(max,dy*.12));
+        el.style.transform='translate3d('+dx.toFixed(2)+'px,'+dy.toFixed(2)+'px,0)';
+      },{passive:true});
+      el.addEventListener('pointerleave',function(){el.style.transform='';},{passive:true});
+      el.addEventListener('pointerdown',function(){el.style.transform='translate3d(0,1px,0) scale(.985)';},{passive:true});
+      el.addEventListener('pointerup',function(){el.style.transform='';},{passive:true});
+    });
+
+    /* ---------- one RAF for all continuous motion ---------- */
+    var raf=0, visible=true;
+    function frame(){
+      raf=requestAnimationFrame(frame);
+      if(document.hidden)return;
+
+      sy += (targetY-sy)*.16;
+      velocity += ((targetY-lastY)-velocity)*.12;
+      lastY=targetY;
+
+      var vh=innerHeight||800;
+
+      /* hero parallax only while hero is near viewport */
+      if(heroBg && sy < vh*1.35){
+        var p=Math.max(-40,Math.min(110,sy*.20));
+        heroBg.style.transform='translate3d(0,'+p.toFixed(2)+'px,0)';
+      }
+
+      /* subtle about depth; does not affect document flow */
+      if(about){
+        var ar=about.getBoundingClientRect();
+        if(ar.bottom>0 && ar.top<vh){
+          var aoff=(vh*.5-(ar.top+ar.height*.5))*.045;
+          aoff=Math.max(-16,Math.min(16,aoff));
+          about.style.transform='translate3d(0,'+aoff.toFixed(2)+'px,0)';
+        }
+      }
+
+      /* cursor smoothing through CSS vars */
+      if(hasPointer){
+        pointer.x += (pointer.tx-pointer.x)*.22;
+        pointer.y += (pointer.ty-pointer.y)*.22;
+        root.style.setProperty('--mx',pointer.x.toFixed(1)+'px');
+        root.style.setProperty('--my',pointer.y.toFixed(1)+'px');
+      }
+
+      /* velocity signal for marquee — harmless if marquee exists */
+      root.style.setProperty('--scroll-v',Math.max(-2,Math.min(2,velocity)).toFixed(3));
+    }
+
+    /* Do not start until the initial loader has released the page. */
+    function start(){
+      if(raf)return;
+      requestAnimationFrame(function(){
+        frame();
+      });
+    }
+    if(document.body.classList.contains('loading')){
+      document.addEventListener('transitionend',function(e){
+        if(e.target===document.getElementById('loader'))start();
+      },{passive:true});
+      setTimeout(start,1200);
+    }else start();
+
+    /* ---------- reveal refresh after dynamic content rebuilds ---------- */
+    var refreshTimer=0;
+    function refreshMotion(){
+      clearTimeout(refreshTimer);
+      refreshTimer=setTimeout(function(){
+        document.querySelectorAll('.gal figure,.q,.acc li,.crow,.mrow,.about-photo').forEach(function(el){
+          if(!el.hasAttribute('data-motion-ready'))el.setAttribute('data-motion-ready','1');
+        });
+      },60);
+    }
+    refreshMotion();
+
+    /* ---------- nav state: class only, no translate/position jump ---------- */
+    function navState(){
+      if(!hdr)return;
+      hdr.classList.toggle('sc',(window.scrollY||0)>12);
+    }
+    addEventListener('scroll',navState,{passive:true});
+    navState();
+
+    /* ---------- tab/menu rebuilds: re-bind motion without disturbing layout ---------- */
+    document.addEventListener('click',function(e){
+      if(e.target.closest('[data-cat]')){
+        setTimeout(refreshMotion,20);
+      }
+    },{passive:true});
+
+    /* ---------- clean pause when tab is hidden ---------- */
+    document.addEventListener('visibilitychange',function(){
+      if(document.hidden){ }
+    });
+  }catch(err){
+    /* Motion must never be able to break the site. */
+    try{console.warn("Room's Lounge motion disabled:",err);}catch(_){}
+  }
+})();
+
 </script>
 </body>
 </html>
