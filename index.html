@@ -287,92 +287,56 @@ footer{border-top:1px solid var(--line);background:var(--velvet2);padding:56px 2
 @media(max-width:768px){body{cursor:auto}#glow,#kring,.trail{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}#glow,#kring,.trail{display:none}#loader{display:none}}
 
-/* ===== ROOM'S LOUNGE — MAX MOTION / MOBILE STABILITY v3 ===== */
-html,body{overflow-x:hidden!important;overflow-anchor:none}
-body{min-width:0}
-header,#hdr,.hbar,.brand,.hright,nav.desk{transform:none!important}
-header{contain:layout paint;backface-visibility:hidden}
-.hbar{min-width:0}
-.brand{flex:0 1 auto;min-width:0}
-.brand b{white-space:nowrap}
-.hero{contain:layout paint;min-height:100svh;height:100svh}
-.hero-in{transform:translate3d(0,0,0);backface-visibility:hidden}
-.hero-bg{transform:translate3d(0,0,0);backface-visibility:hidden}
-.hero-bg img{backface-visibility:hidden}
-img{content-visibility:auto}
-.hero img{content-visibility:visible}
-.rv{will-change:opacity,transform}
-#smoke{contain:strict;will-change:contents}
+/* =========================================================
+   KORKA / ROOM'S LOUNGE — FINAL MOTION PATCH
+   Stability first: never animate layout containers on mobile.
+   ========================================================= */
+html{overflow-x:clip;overflow-anchor:none}
+body{overflow-x:clip}
+img{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+#pb{transform-origin:0 50%;will-change:width}
+.pre{will-change:opacity;contain:paint}
+.nav{will-change:box-shadow,background;transform:none!important}
+.hero{contain:layout paint}
+.hero-txt,.cards3d,.about-img{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 
-/* Elegant scroll progress */
-#pb{height:2px;transform-origin:left center;box-shadow:0 0 14px rgba(201,162,39,.45)}
-
-/* Desktop: stronger motion, but only on elements designed for it */
 @media (min-width:769px) and (pointer:fine){
-  .hero-in{will-change:transform}
-  .gal figure,.q,.acc li,.crow,.mrow,.about-photo,.btn{
-    backface-visibility:hidden;
+  .post,.p,.rev,.row,.about-img,.btn{
     transform-style:preserve-3d;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
   }
-  .gal figure:hover{box-shadow:0 22px 60px rgba(0,0,0,.28)}
-  .q:hover,.acc li:hover,.crow:hover{box-shadow:0 18px 44px rgba(0,0,0,.22)}
+  .post:hover,.p:hover,.rev:hover{
+    filter:brightness(1.015);
+  }
 }
 
-/* Mobile: no layout-shifting transforms on page containers.
-   Motion is opacity, scale, glow, image zoom and small local effects. */
+/* Mobile must NEVER move the page itself with JS transforms. */
 @media (max-width:768px){
-  header,#hdr,.hbar,.brand,.hright,nav.desk,.mnav,
-  .hero-in,.hero-kicker,.hero h1,.hero h1 .l2,.hero-lead,.hero-cta,
-  .sec-head,.rv,.about-photo,.about-txt,.menu-tabs,.mlist,.mrow,
-  .gal,.gal figure,.acc,.acc li,.quotes,.q,.con,.crow,.book-panel,
-  footer,.f-grid,.f-bot{
-    transform:none!important;
+  html,body{overflow-x:hidden}
+  .hero,.hero-txt,.cards3d,.post,.p,.rev,.row,.about-img,
+  .contact,.head,.prod,.revs,.sched,.about,.wrap,section,footer{
+    /* keep layout geometry deterministic */
+    transform:none;
   }
-
-  .hbar{height:64px;padding:0 14px;gap:10px}
-  .brand{gap:8px}
-  .brand svg{width:36px;height:36px}
-  .brand b{font-size:.86em;letter-spacing:.12em}
-  .hright{margin-left:auto}
-  .lang button{padding:4px 8px}
-  .burger{width:40px;height:40px}
-
-  .hero{min-height:100svh;height:100svh}
-  .hero-in{padding:92px 16px 78px}
-  .hero h1{font-size:clamp(3rem,17vw,5.5rem)}
-  .hero-lead{font-size:.96em;max-width:31ch}
-  .hero-cta{gap:10px}
-  .hero-cta .btn{width:min(100%,360px)}
-
-  /* reveal motion stays local and cannot move document flow */
-  .rv{opacity:0;transform:translate3d(0,18px,0)!important;transition:opacity .7s var(--ease),transform .7s var(--ease)}
-  .rv.in{opacity:1;transform:translate3d(0,0,0)!important}
-  .rv.in .stagger>*{animation:mobileStagger .6s var(--ease) both}
-  @keyframes mobileStagger{
-    from{opacity:0;transform:translate3d(0,12px,0) scale(.985)}
-    to{opacity:1;transform:translate3d(0,0,0) scale(1)}
-  }
-
-  .gal figure img,.about-photo img{animation-duration:42s!important}
-  .gal figure.touched img{transform:scale(1.035)!important}
-  .gal figure.touched .inner-border{inset:12px!important}
-  .mrow.touched{padding-left:7px!important}
-  .acc li.touched,.q.touched,.crow.touched{transform:translate3d(0,-2px,0)!important}
-  .btn.touched{transform:scale(.985)!important}
+  .hero{min-height:0}
+  .cards3d{transform:none!important}
+  .hero-txt{transform:none!important}
+  .about-img{transform:none!important}
+  .post,.p,.rev,.row,.btn{will-change:transform}
+  .mq{will-change:transform}
 }
 
-/* Very small phones */
-@media (max-width:380px){
-  .brand b{font-size:.76em}
-  .lang{display:none}
-  .hero-in{padding-left:13px;padding-right:13px}
-  section{padding-left:13px!important;padding-right:13px!important}
+/* Smooth, visible reveal without changing document flow. */
+@media (max-width:768px){
+  .rv{opacity:0;transform:translate3d(0,18px,0);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+  .rv.in{opacity:1;transform:none}
+  .stagger>.rv{opacity:0;transform:translate3d(0,16px,0)}
+  .rv.in .stagger>.rv,
+  .stagger>.rv.in{opacity:1;transform:none}
 }
-
-/* Reduced motion: deterministic and visible */
 @media (prefers-reduced-motion:reduce){
-  .rv,.rv.in{opacity:1!important;transform:none!important}
-  .hero-kicker,.hero h1 .l2,.hero-lead,.hero-cta,.hero h1 .ch{opacity:1!important;transform:none!important}
+  .rv,.rv.in,.stagger>.rv,.stagger>.rv.in{opacity:1!important;transform:none!important}
 }
 
 </style>
@@ -780,7 +744,7 @@ try{
 (function(){
  if(reduced)return;
  var c=$('#smoke');if(!c)return;var ctx=c.getContext('2d');if(!ctx)return;
- var W=0,H=0,dpr=1;function rs(){dpr=Math.min(devicePixelRatio||1,1.5);W=c.clientWidth;H=c.clientHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);}rs();addEventListener('resize',rs);
+ var W=0,H=0,dpr=1;function rs(){dpr=Math.min(devicePixelRatio||1,1.5);W=c.clientWidth;H=c.clientHeight;c.width=W*dpr;c.height=H*dpr;ctx.setTransform(d,0,0,d,0,0);}rs();addEventListener('resize',rs);
  var P=new Uint8Array(512);(function(){var p=new Uint8Array(256),i,s=1337;for(i=0;i<256;i++)p[i]=i;var r=function(){return (s=s*16807%2147483647)/2147483647};for(i=255;i>0;i--){var j=Math.floor(r()*(i+1));var t2=p[i];p[i]=p[j];p[j]=t2;}for(i=0;i<512;i++)P[i]=p[i&255];})();
  function fade(t){return t*t*t*(t*(t*6-15)+10)}
  function grad(h,x,y){switch(h&3){case 0:return x+y;case 1:return -x+y;case 2:return x-y;default:return -x-y}}
@@ -836,164 +800,151 @@ applyLang();observeRv();
 </script>
 
 <script>
-/* ===== ROOM'S LOUNGE — MAX MOTION ENGINE v3 ===== */
 (function(){
   'use strict';
-  var root=document.documentElement, body=document.body;
-  var reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var mobile=window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
-  var fine=window.matchMedia && window.matchMedia('(pointer:fine)').matches;
-  var raf=0, last=performance.now(), scrollY=window.scrollY||0, targetY=scrollY;
-  var hero=document.getElementById('hero'), heroBg=document.getElementById('heroBg');
-  var heroIn=document.querySelector('.hero-in'), about=document.getElementById('aboutPhoto');
-  var progress=document.getElementById('pb');
 
-  function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-  function setTransform(el,x,y,scale,rx,ry){
-    if(!el)return;
-    var s='translate3d('+x+'px,'+y+'px,0)';
-    if(scale!=null)s+=' scale('+scale+')';
-    if(rx!=null||ry!=null){
-      s+=' perspective(900px) rotateX('+(rx||0)+'deg) rotateY('+(ry||0)+'deg)';
-    }
-    el.style.transform=s;
+  var reduce=false, fine=false, mobile=false;
+  try{
+    reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    fine=window.matchMedia('(pointer:fine)').matches;
+    mobile=window.matchMedia('(max-width:768px)').matches;
+  }catch(e){}
+
+  var $=function(s){return document.querySelector(s)};
+  var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+  var nav=$('#nav'), pb=$('#pb'), hero=$('#hero'), cards=$('#cards3d'), heroTxt=$('#heroTxt'), about=$('#aboutImg');
+  var targetScroll=window.scrollY||0, smoothScroll=targetScroll, last=performance.now();
+
+  /* Never touch layout-critical header geometry. */
+  function resetMobileTransforms(){
+    if(!mobile)return;
+    [nav,heroTxt,cards,about].forEach(function(el){
+      if(el) el.style.removeProperty('transform');
+    });
   }
 
-  /* Never animate layout-critical header geometry. */
-  function lockHeader(){
-    var els=document.querySelectorAll('#hdr,.hbar,.brand,.hright,nav.desk');
-    for(var i=0;i<els.length;i++){
-      els[i].style.removeProperty('transform');
-    }
-  }
-
-  /* Reliable reveal fallback: if an observer misses an element, it still becomes visible. */
-  function safeReveal(){
-    var items=document.querySelectorAll('.rv');
+  /* Guaranteed reveal: prevents a mobile page from staying invisible. */
+  function revealVisible(){
     var vh=window.innerHeight||800;
-    for(var i=0;i<items.length;i++){
-      var el=items[i];
-      if(el.classList.contains('in'))continue;
+    $$('.rv').forEach(function(el){
+      if(el.classList.contains('in'))return;
       var r=el.getBoundingClientRect();
-      if(r.top<vh*.94 && r.bottom>0) el.classList.add('in');
-    }
+      if(r.top < vh*0.96 && r.bottom > -20) el.classList.add('in');
+    });
   }
 
-  function onScroll(){
-    targetY=window.scrollY||0;
+  function scrollHandler(){
+    targetScroll=window.scrollY||0;
     var max=Math.max(1,document.documentElement.scrollHeight-window.innerHeight);
-    if(progress) progress.style.transform='scaleX('+clamp(targetY/max,0,1)+')';
-    if(targetY>12) document.getElementById('hdr').classList.add('sc');
-    else document.getElementById('hdr').classList.remove('sc');
-    safeReveal();
+    if(pb) pb.style.width=(Math.max(0,Math.min(1,targetScroll/max))*100)+'%';
+    if(nav) nav.classList.toggle('scrolled',targetScroll>12);
+    revealVisible();
+
+    /* Desktop cinematic motion only. */
+    if(!reduce && !mobile){
+      var y=Math.min(targetScroll,window.innerHeight*1.2);
+      if(cards) cards.style.transform='translate3d(0,'+(-y*.025)+'px,0)';
+      if(heroTxt) heroTxt.style.transform='translate3d(0,'+(-y*.012)+'px,0)';
+    }else{
+      resetMobileTransforms();
+    }
   }
-  window.addEventListener('scroll',onScroll,{passive:true});
+  addEventListener('scroll',scrollHandler,{passive:true});
 
-  function frame(now){
-    raf=requestAnimationFrame(frame);
-    var dt=Math.min(32,now-last); last=now;
-    scrollY += (targetY-scrollY)*(mobile?.18:.12);
-
-    /* Desktop: cinematic parallax. Mobile: only tiny background drift, never content. */
-    if(!reduce && heroBg && hero){
-      var hy=clamp(scrollY,0,window.innerHeight*1.1);
-      var bg=mobile ? hy*.035 : hy*.12;
-      setTransform(heroBg,0,bg,1,null,null);
-    }
-
-    if(!reduce && heroIn && !mobile){
-      var y=clamp(scrollY,0,window.innerHeight*.9);
-      setTransform(heroIn,0,y*.075,1-y*.00008,null,null);
-    }
-
-    if(!reduce && about && !mobile){
-      var r=about.getBoundingClientRect();
-      if(r.bottom>0 && r.top<window.innerHeight){
-        var off=(window.innerHeight*.5-(r.top+r.height*.5))*.035;
-        setTransform(about,0,off,1,null,null);
+  /* Desktop cursor atmosphere. */
+  if(fine && !mobile && !reduce){
+    var ring=$('#ring'), dot=$('#dot'), trails=[];
+    if(ring&&dot){
+      for(var i=0;i<3;i++){
+        var t=document.createElement('div');
+        t.className='trail';
+        t.style.opacity=String(.35-i*.09);
+        document.body.appendChild(t);
+        trails.push({el:t,x:-100,y:-100});
       }
-    }
+      var mx=-100,my=-100,rx=-100,ry=-100;
+      addEventListener('mousemove',function(e){mx=e.clientX;my=e.clientY},{passive:true});
+      (function cursor(){
+        rx+=(mx-rx)*.18; ry+=(my-ry)*.18;
+        ring.style.transform='translate3d('+(rx-ring.offsetWidth/2)+'px,'+(ry-ring.offsetHeight/2)+'px,0)';
+        dot.style.transform='translate3d('+(mx-2.5)+'px,'+(my-2.5)+'px,0)';
+        var x=mx,y=my;
+        trails.forEach(function(o){
+          o.x+=(x-o.x)*.32; o.y+=(y-o.y)*.32;
+          o.el.style.transform='translate3d('+(o.x-4)+'px,'+(o.y-4)+'px,0)';
+          x=o.x;y=o.y;
+        });
+        requestAnimationFrame(cursor);
+      })();
 
-    lockHeader();
-  }
+      $$('a,button,.post,.p,.rev,.row').forEach(function(el){
+        el.addEventListener('mouseenter',function(){ring.classList.add('hov')});
+        el.addEventListener('mouseleave',function(){ring.classList.remove('hov')});
+      });
 
-  /* Local touch motion only; no document-wide transforms on mobile. */
-  function bindTouch(){
-    var selectors='.gal figure,.q,.acc li,.crow,.mrow,.btn';
-    var els=document.querySelectorAll(selectors);
-    for(var i=0;i<els.length;i++){
-      (function(el){
-        var reset=function(){
-          el.classList.remove('touched');
-          if(!mobile){
-            el.style.removeProperty('transform');
-            el.style.removeProperty('--rx');
-            el.style.removeProperty('--ry');
-          }
-        };
-        el.addEventListener('touchstart',function(){
-          if(reduce)return;
-          el.classList.add('touched');
-        },{passive:true});
-        el.addEventListener('touchend',function(){setTimeout(reset,180);},{passive:true});
-        el.addEventListener('touchcancel',reset,{passive:true});
-        if(fine && !mobile){
-          el.addEventListener('mousemove',function(e){
-            if(reduce)return;
-            var r=el.getBoundingClientRect();
-            var px=(e.clientX-r.left)/Math.max(1,r.width)-.5;
-            var py=(e.clientY-r.top)/Math.max(1,r.height)-.5;
-            if(el.matches('.gal figure,.q,.acc li,.crow')){
-              setTransform(el,px*4,py*-4,1.012,py*-3,px*3);
-            }else if(el.matches('.btn')){
-              setTransform(el,px*5,py*4,1.01,null,null);
-            }
-          });
-          el.addEventListener('mouseleave',reset);
-        }
-      })(els[i]);
+      /* 3D hover — desktop only, never mobile. */
+      $$('.post,.p,.rev').forEach(function(el){
+        el.addEventListener('mousemove',function(e){
+          var r=el.getBoundingClientRect();
+          var px=(e.clientX-r.left)/Math.max(1,r.width)-.5;
+          var py=(e.clientY-r.top)/Math.max(1,r.height)-.5;
+          el.style.transform='perspective(900px) rotateX('+(-py*5)+'deg) rotateY('+(px*5)+'deg) translate3d(0,-5px,0)';
+        });
+        el.addEventListener('mouseleave',function(){el.style.removeProperty('transform')});
+      });
+
+      $$('.btn').forEach(function(b){
+        b.addEventListener('mousemove',function(e){
+          var r=b.getBoundingClientRect();
+          b.style.transform='translate3d('+((e.clientX-r.left-r.width/2)*.12)+'px,'+((e.clientY-r.top-r.height/2)*.16)+'px,0)';
+        });
+        b.addEventListener('mouseleave',function(){b.style.removeProperty('transform')});
+      });
     }
   }
 
-  /* Mouse atmosphere on desktop only. */
-  function bindPointer(){
-    if(reduce||!fine||mobile)return;
-    var glow=document.getElementById('glow'), ring=document.getElementById('kring');
-    if(!glow||!ring)return;
-    var x=innerWidth/2,y=innerHeight/2,cx=x,cy=y;
-    window.addEventListener('mousemove',function(e){x=e.clientX;y=e.clientY;glow.style.opacity='1';ring.style.opacity='1';},{passive:true});
-    (function pointerFrame(){
-      cx+=(x-cx)*.16; cy+=(y-cy)*.16;
-      glow.style.left=cx+'px'; glow.style.top=cy+'px';
-      ring.style.left=cx+'px'; ring.style.top=cy+'px';
-      requestAnimationFrame(pointerFrame);
-    })();
-  }
-
-  /* Header is immediately stable; page motion starts after first paint. */
-  lockHeader();
-  onScroll();
-  bindTouch();
-  bindPointer();
-  safeReveal();
-
-  requestAnimationFrame(function(){
-    lockHeader();
-    safeReveal();
-    raf=requestAnimationFrame(frame);
+  /* Touch motion: tiny local feedback only, no page/container transforms. */
+  $$('.post,.p,.rev,.row,.about-img,.btn').forEach(function(el){
+    el.addEventListener('touchstart',function(){
+      if(reduce)return;
+      el.classList.add('touched');
+    },{passive:true});
+    ['touchend','touchcancel'].forEach(function(ev){
+      el.addEventListener(ev,function(){
+        setTimeout(function(){el.classList.remove('touched')},180);
+      },{passive:true});
+    });
   });
 
-  window.addEventListener('resize',function(){
-    mobile=window.matchMedia && window.matchMedia('(max-width:768px)').matches;
-    lockHeader();
-    safeReveal();
-  },{passive:true});
-
-  /* If any old motion code writes a transform to the header, remove it on the next frame. */
-  var header=document.getElementById('hdr');
-  if(header && window.MutationObserver){
-    new MutationObserver(function(){lockHeader();}).observe(header,{subtree:true,attributes:true,attributeFilter:['style','class']});
+  /* Stronger hero image movement on desktop, deliberately disabled on mobile. */
+  function frame(now){
+    var dt=Math.min(32,now-last); last=now;
+    smoothScroll+=(targetScroll-smoothScroll)*(mobile?.22:.10);
+    if(!reduce && !mobile && about){
+      var r=about.getBoundingClientRect();
+      if(r.bottom>0&&r.top<innerHeight){
+        var off=(innerHeight*.5-(r.top+r.height*.5))*.035;
+        about.style.transform='translate3d(0,'+off.toFixed(1)+'px,0)';
+      }
+    }
+    requestAnimationFrame(frame);
   }
+
+  /* First paint: content must be usable immediately. */
+  $$('.rv').forEach(function(el){
+    var r=el.getBoundingClientRect();
+    if(r.top < (innerHeight||800)*.96) el.classList.add('in');
+  });
+  scrollHandler();
+  resetMobileTransforms();
+  requestAnimationFrame(revealVisible);
+  requestAnimationFrame(frame);
+
+  addEventListener('resize',function(){
+    try{mobile=matchMedia('(max-width:768px)').matches}catch(e){}
+    resetMobileTransforms();
+    revealVisible();
+  },{passive:true});
 })();
 </script>
 
